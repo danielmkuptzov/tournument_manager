@@ -10,9 +10,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(MTM_FLAGS_DEBUG "-std=c99 --pedantic-errors -Wall -Werror")
 set(MTM_FLAGS_RELEASE "${MTM_FLAGS_DEBUG} -DNDEBUG")
 
-set(C_FILES main.c   )
+set(C_FILES main.cpp map_space_manager.cpp
+        map_space_manager.h)
 
-add_executable(queens_gambit_the_fix main.cpp
-        cmake-build-debug/map_space_manager.cpp
-        cmake-build-debug/map_space_manager.h)
+add_executable(queens_gambit_the_fix ${C_FILES})
 
