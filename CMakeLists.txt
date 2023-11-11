@@ -11,7 +11,8 @@ set(MTM_FLAGS_DEBUG "-std=c99 --pedantic-errors -Wall -Werror")
 set(MTM_FLAGS_RELEASE "${MTM_FLAGS_DEBUG} -DNDEBUG")
 
 set(C_FILES main.cpp map_space_manager.cpp
-        map_space_manager.h)
+        map_space_manager.h
+        map_space_manager.cpp)
 
 add_executable(queens_gambit_the_fix ${C_FILES})
 
