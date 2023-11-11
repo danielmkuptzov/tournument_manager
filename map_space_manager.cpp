@@ -8,9 +8,14 @@
 
 typedef struct Node_t {}* Node;
 
-Node createnode();
-void destroynode();
-Node copynode();
+/**
+ *
+ */
+Node createnode(){}
+
+void destroynode(){}
+
+Node copynode(){}
 
 struct map_t{
     Node head;
@@ -21,23 +26,6 @@ struct map_t{
     compareKeyElements comparisonfunc;
 };
 
-/**
-* mapCreate: Allocates a new empty map.
-*
-* @param copyDataElement - Function pointer to be used for copying data elements into
-*  	the map or when copying the map.
-* @param copyKeyElement - Function pointer to be used for copying key elements into
-*  	the map or when copying the map.
-* @param freeDataElement - Function pointer to be used for removing data elements from
-* 		the map
-* @param freeKeyElement - Function pointer to be used for removing key elements from
-* 		the map
-* @param compareKeyElements - Function pointer to be used for comparing key elements
-* 		inside the map. Used to check if new elements already exist in the map.
-* @return
-* 	NULL - if one of the parameters is NULL or allocations failed.
-* 	A new Map in case of success.
-*/
 Map mapCreate(copyDataElements copyDataElement,
               copyKeyElements copyKeyElement,
               freeDataElements freeDataElement,
@@ -60,6 +48,7 @@ Map mapCreate(copyDataElements copyDataElement,
     mapnew->fereekey=freeKeyElement;
     mapnew->freedata=freeDataElement;
     mapnew->head=NULL;
+    return mapnew;
 }
 
 /**
@@ -69,7 +58,7 @@ Map mapCreate(copyDataElements copyDataElement,
 * @param map - Target map to be deallocated. If map is NULL nothing will be
 * 		done
 */
-void mapDestroy(Map map);
+void mapDestroy(Map map){}
 
 /**
 * mapCopy: Creates a copy of target map.
@@ -80,7 +69,7 @@ void mapDestroy(Map map);
 * 	NULL if a NULL was sent or a memory allocation failed.
 * 	A Map containing the same elements as map otherwise.
 */
-Map mapCopy(Map map);
+Map mapCopy(Map map){}
 
 /**
 * mapGetSize: Returns the number of elements in a map
@@ -89,7 +78,7 @@ Map mapCopy(Map map);
 * 	-1 if a NULL pointer was sent.
 * 	Otherwise the number of elements in the map.
 */
-int mapGetSize(Map map);
+int mapGetSize(Map map){}
 
 /**
 * mapContains: Checks if a key element exists in the map. The key element will be
@@ -103,7 +92,7 @@ int mapGetSize(Map map);
 * 	false - if one or more of the inputs is null, or if the key element was not found.
 * 	true - if the key element was found in the map.
 */
-bool mapContains(Map map, KeyElement element);
+bool mapContains(Map map, KeyElement element){}
 
 /**
 *	mapPut: Gives a specified key a specific value.
@@ -121,7 +110,7 @@ bool mapContains(Map map, KeyElement element);
 * 	an element failed)
 * 	MAP_SUCCESS the paired elements had been inserted successfully
 */
-MapResult mapPut(Map map, KeyElement keyElement, DataElement dataElement);
+MapResult mapPut(Map map, KeyElement keyElement, DataElement dataElement){}
 
 /**
 *	mapGet: Returns the data associated with a specific key in the map.
@@ -134,7 +123,7 @@ we want to get.
 *  NULL if a NULL pointer was sent or if the map does not contain the requested key.
 * 	The data element associated with the key otherwise.
 */
-DataElement mapGet(Map map, KeyElement keyElement);
+DataElement mapGet(Map map, KeyElement keyElement){}
 
 /**
 * 	mapRemove: Removes a pair of key and data elements from the map. The elements
@@ -154,7 +143,7 @@ DataElement mapGet(Map map, KeyElement keyElement);
 *  MAP_ITEM_DOES_NOT_EXIST if an equal key item does not already exists in the map
 * 	MAP_SUCCESS the paired elements had been removed successfully
 */
-MapResult mapRemove(Map map, KeyElement keyElement);
+MapResult mapRemove(Map map, KeyElement keyElement){}
 
 /**
 *	mapGetFirst: Sets the internal iterator (also called current key element) to
@@ -169,7 +158,7 @@ MapResult mapRemove(Map map, KeyElement keyElement);
 * 	NULL if a NULL pointer was sent or the map is empty.
 * 	The first key element of the map otherwise
 */
-KeyElement mapGetFirst(Map map);
+KeyElement mapGetFirst(Map map){}
 
 /**
 *	mapGetNext: Advances the map iterator to the next key element and returns it.
@@ -180,7 +169,7 @@ KeyElement mapGetFirst(Map map);
 * 	or a NULL sent as argument
 * 	The next key element on the map in case of success
 */
-KeyElement mapGetNext(Map map);
+KeyElement mapGetNext(Map map){}
 
 
 /**
@@ -192,4 +181,4 @@ KeyElement mapGetNext(Map map);
 * 	MAP_NULL_ARGUMENT - if a NULL pointer was sent.
 * 	MAP_SUCCESS - Otherwise.
 */
-MapResult mapClear(Map map);
+MapResult mapClear(Map map){}
