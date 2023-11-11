@@ -5,17 +5,100 @@
 #include <stdlib.h>
 
 #include "map_space_manager.h"
-
-typedef struct Node_t {}* Node;
+typedef struct Node_t {
+    KeyElement key;
+    DataElement data;
+    Node_t* next;
+}* Node;
 
 /**
- *
+ * createnode -   allocates a node with data
+ * @param keyElement
+ * @param dataElement
+ * @param copyKeyElement
+ * @param copyDataElement
+ * @param freeKeyElement
+ * @return
+ *   NULL if any problem accured
+ *   Node otherwise
  */
-Node createnode(){}
+Node createnode(copyDataElements copyDataElement, copyKeyElements copyKeyElement,freeKeyElements freeKeyElement,
+                KeyElement keyElement, DataElement dataElement)
+{
+    if(!copyDataElement||!copyKeyElement||!keyElement||!dataElement
+       ||!freeKeyElement)
+    {
+        return NULL;
+    }
+    Node nodenew = static_cast<Node>(malloc(sizeof(struct Node_t)));
+    if(!nodenew)
+    {
+        return NULL;
+    }
+    nodenew->key=copyKeyElement(keyElement);
+    if(!nodenew->key)
+    {
+        free(nodenew);
+    }
+    nodenew->data=copyDataElement(dataElement);
+    if(!nodenew->data)
+    {
+        freeKeyElement(nodenew->key);
+        free(nodenew);
+    }
+    nodenew->next=NULL;
+    return nodenew;
+}
 
-void destroynode(){}
+/**
+* mapDestroy: Deallocates an existing map. Clears all elements by using the
+* stored free functions.
+*
+* @param node - Target node to be deallocated. If map is NULL nothing will be
+* 		done
+* @param freeKeyElement
+* @param freeDataElement
+ */
+void destroynode(Node node,freeKeyElements freeKeyElements,freeDataElements freeDataElements)
+{
+    if(!node||!freeKeyElements||!freeDataElements)
+    {
+        return;
+    }
+    if(node->next)
+    {
+        destroynode(node->next,freeKeyElements,freeDataElements);
+    }
+    freeDataElements(node->data);
+    freeKeyElements(node->key);
+    free(node);
+}
 
-Node copynode(){}
+/**
+* copynode: Creates a copy of target node.
+*
+* @param node - Target node.
+* @param copyKeyElement
+* @param copyDataElement
+* @param freeKeyElement
+* @return
+* 	NULL if a NULL was sent or a memory allocation failed.
+* 	A Node containing the same elements as map otherwise.
+*/
+Node copynode(Node node,copyKeyElements copyKeyElement, copyDataElements copyDataElement,
+              freeKeyElements freeKeyElement)
+{
+    if(!node||!copyKeyElement||!copyDataElement||!freeKeyElement)
+    {
+        return NULL;
+    }
+    Node copy= createnode(copyDataElement, copyKeyElement,freeKeyElement,node->key, node->data);
+    if(!copy)
+    {
+        return NULL;
+    }
+    return copy;
+}
 
 struct map_t{
     Node head;
@@ -51,14 +134,16 @@ Map mapCreate(copyDataElements copyDataElement,
     return mapnew;
 }
 
-/**
-* mapDestroy: Deallocates an existing map. Clears all elements by using the
-* stored free functions.
-*
-* @param map - Target map to be deallocated. If map is NULL nothing will be
-* 		done
-*/
-void mapDestroy(Map map){}
+
+void mapDestroy(Map map)
+{
+    if(!map)
+    {
+        return;
+    }
+    destroynode(map->head,map->fereekey,map->freedata);
+    free(map);
+}
 
 /**
 * mapCopy: Creates a copy of target map.
@@ -69,7 +154,8 @@ void mapDestroy(Map map){}
 * 	NULL if a NULL was sent or a memory allocation failed.
 * 	A Map containing the same elements as map otherwise.
 */
-Map mapCopy(Map map){}
+Map mapCopy(Map map)
+{}
 
 /**
 * mapGetSize: Returns the number of elements in a map
