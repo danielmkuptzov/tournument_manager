@@ -362,19 +362,18 @@ MapResult mapPut(Map map, KeyElement keyElement, DataElement dataElement)
     return MAP_SUCCESS;
 }
 
-/**
-*	mapGet: Returns the data associated with a specific key in the map.
-*			Iterator status unchanged
-*
-* @param map - The map for which to get the data element from.
-* @param keyElement - The key element which need to be found and whos data
-we want to get.
-* @return
-*  NULL if a NULL pointer was sent or if the map does not contain the requested key.
-* 	The data element associated with the key otherwise.
-*/
 DataElement mapGet(Map map, KeyElement keyElement)
-{}
+{
+    if(!map||!keyElement)
+    {
+        return NULL;
+    }
+    if(!mapContains(map,keyElement))
+    {
+        return NULL;
+    }
+    return nodegetdata(map->iterator);
+}
 
 /**
 * 	mapRemove: Removes a pair of key and data elements from the map. The elements
@@ -394,7 +393,8 @@ DataElement mapGet(Map map, KeyElement keyElement)
 *  MAP_ITEM_DOES_NOT_EXIST if an equal key item does not already exists in the map
 * 	MAP_SUCCESS the paired elements had been removed successfully
 */
-MapResult mapRemove(Map map, KeyElement keyElement){}
+MapResult mapRemove(Map map, KeyElement keyElement)
+{}
 
 /**
 *	mapGetFirst: Sets the internal iterator (also called current key element) to
