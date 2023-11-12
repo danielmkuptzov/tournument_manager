@@ -108,6 +108,14 @@ Node copynode(Node node,copyKeyElements copyKeyElement, copyDataElements copyDat
     return copy;
 }
 
+/**
+*	nodegetkey: Gives a given node's key.
+*
+* @param node - The node we want the key from.
+* @return
+* 	NULL if null argument was passed
+* 	key otherwise
+*/
 KeyElement nodegetkey(Node node)
 {
     if(!node)
@@ -117,6 +125,14 @@ KeyElement nodegetkey(Node node)
     return node->key;
 }
 
+/**
+*	nodegetdata: Gives a given node's data.
+*
+* @param node - The node we want the key from.
+* @return
+* 	NULL if null argument was passed
+* 	data otherwise
+*/
 DataElement nodegetdata(Node node)
 {
     if(!node)
@@ -126,6 +142,14 @@ DataElement nodegetdata(Node node)
     return node->data;
 }
 
+/**
+*	nodegetnext: Gives a given node's next element.
+*
+* @param node - The node we want the key from.
+* @return
+* 	NULL if null argument was passed
+* 	node otherwise
+*/
 Node nodegetnext(Node node)
 {
     if(!node)
@@ -134,28 +158,43 @@ Node nodegetnext(Node node)
     }
     return node->next;
 }
+
 /**
-*	mapPut: Gives a specified key a specific value.
-*  Iterator's value is undefined after this operation.
+*	nodechangedata: Changes a given node's data.
 *
-* @param node - The map for which to reassign the data element
+* @param node - The node for which to reassign the data element
 * @param copyDataElement - The copy function
 * @param dataElement - The new data element to associate with the given key.
 *      A copy of the element will be inserted as supplied by the copying function
 *      which is given at initialization and old data memory would be
 *      deleted using the free function given at initialization.
 * @return
-* 	NODE_NULL_ARGUMENT if a NULL was sent as map
+* 	NODE_NULL_ARGUMENT if a NULL was sent as node
 * 	NODE_SUCCESS the paired elements had been inserted successfully
 */
-NodeResult nodeinsert(Node node, copyDataElements copyDataElement, DataElement dataElement)
+NodeResult nodechangedata(Node node, copyDataElements copyDataElement, DataElement dataElement)
 {
     if(!node||!copyDataElement||!dataElement)
     {
         return NODE_NULL_ARGUMENT;
     }
-
+    node->data=copyDataElement(dataElement);
+    return NODE_SUCCESS;
 }
+
+/**
+*	nodechangenext: Changes a given node's next node.
+*
+* @param node - The node for which to reassign the data element
+*      A copy of the element will be inserted as supplied by the copying function
+*      which is given at initialization and old data memory would be
+*      deleted using the free function given at initialization.
+* @return
+* 	NODE_NULL_ARGUMENT if a NULL was sent as node
+* 	NODE_SUCCESS the paired elements had been inserted successfully
+*/
+NodeResult nodechangenext(Node node)
+{}
 
 struct map_t{
     int size;
