@@ -160,41 +160,73 @@ Node nodegetnext(Node node)
 }
 
 /**
-*	nodechangedata: Changes a given node's data.
-*
-* @param node - The node for which to reassign the data element
-* @param copyDataElement - The copy function
-* @param dataElement - The new data element to associate with the given key.
+*	nodechangenext: Changes a given node's next node.
+* @param node - The node for which to reassign the next element
 *      A copy of the element will be inserted as supplied by the copying function
 *      which is given at initialization and old data memory would be
 *      deleted using the free function given at initialization.
+* @param nodenext -the node we want to be the next element.
+* @param copyDataElement
+* @param copyKeyElement
+* @param freeDataElement
+* @param freeKeyElement
 * @return
 * 	NODE_NULL_ARGUMENT if a NULL was sent as node
+* 	NODE_OUT_OF_MEMORY if the action was a failure
 * 	NODE_SUCCESS the paired elements had been inserted successfully
 */
-NodeResult nodechangedata(Node node, copyDataElements copyDataElement, DataElement dataElement)
+NodeResult nodechangenext(Node node, Node nodenext,copyKeyElements copyKeyElement, copyDataElements copyDataElement,
+                          freeKeyElements freeKeyElement,freeDataElements freeDataElement)
 {
-    if(!node||!copyDataElement||!dataElement)
+    if(!node||!nodenext||!copyKeyElement||!copyDataElement||!freeKeyElement||
+    !freeDataElement)
     {
         return NODE_NULL_ARGUMENT;
     }
-    node->data=copyDataElement(dataElement);
+    Node todestroy= nodegetnext(node);
+    node->next= copynode(nodenext,copyKeyElement,copyDataElement,freeKeyElement);
+    if(!node->next)
+    {
+        node->next=todestroy;
+        return NODE_OUT_OF_MEMORY;
+    }
+    node->next->next=todestroy->next;
+    todestroy->next=NULL;
+    destroynode(todestroy,freeKeyElement,freeDataElement);
     return NODE_SUCCESS;
 }
 
 /**
-*	nodechangenext: Changes a given node's next node.
-*
+*	nodechangedata: Changes a given node's data.
 * @param node - The node for which to reassign the data element
 *      A copy of the element will be inserted as supplied by the copying function
 *      which is given at initialization and old data memory would be
 *      deleted using the free function given at initialization.
+* @param data -the data we want to be the new data element.
+* @param copyDataElement
+* @param freeDataElement
 * @return
 * 	NODE_NULL_ARGUMENT if a NULL was sent as node
+* 	NODE_OUT_OF_MEMORY if the action was a failure
 * 	NODE_SUCCESS the paired elements had been inserted successfully
 */
-NodeResult nodechangenext(Node node)
-{}
+NodeResult nodechangedata(Node node, DataElement data, copyDataElements copyDataElement,
+                          freeDataElements freeDataElement)
+{
+    if(!node||!data||!copyDataElement||!freeDataElement)
+    {
+        return NODE_NULL_ARGUMENT;
+    }
+    DataElement tmp=node->data;
+    node->data=copyDataElement(data);
+    if(!node->data)
+    {
+        node->data=tmp;
+        return NODE_OUT_OF_MEMORY;
+    }
+    freeDataElement(tmp);
+    return NODE_SUCCESS;
+}
 
 struct map_t{
     int size;
@@ -207,11 +239,8 @@ struct map_t{
     compareKeyElements comparisonfunc;
 };
 
-Map mapCreate(copyDataElements copyDataElement,
-              copyKeyElements copyKeyElement,
-              freeDataElements freeDataElement,
-              freeKeyElements freeKeyElement,
-              compareKeyElements compareKeyElements)
+Map mapCreate(copyDataElements copyDataElement, copyKeyElements copyKeyElement, freeDataElements freeDataElement,
+              freeKeyElements freeKeyElement, compareKeyElements compareKeyElements)
 {
     if(!copyDataElement||!copyKeyElement||!freeDataElement||
        !freeKeyElement||!compareKeyElements)
@@ -304,21 +333,6 @@ bool mapContains(Map map, KeyElement element)
     return false;
 }
 
-/**
-*	mapPut: Gives a specified key a specific value.
-*  Iterator's value is undefined after this operation.
-*
-* @param map - The map for which to reassign the data element
-* @param keyElement - The key element which need to be reassigned
-* @param dataElement - The new data element to associate with the given key.
-*      A copy of the element will be inserted as supplied by the copying function
-*      which is given at initialization and old data memory would be
-*      deleted using the free function given at initialization.
-* @return
-* 	MAP_OUT_OF_MEMORY if an allocation failed (Meaning the function for copying
-* 	an element failed)
-* 	MAP_SUCCESS the paired elements had been inserted successfully
-*/
 MapResult mapPut(Map map, KeyElement keyElement, DataElement dataElement)
 {
     if(!map||!keyElement||!dataElement)
@@ -327,8 +341,25 @@ MapResult mapPut(Map map, KeyElement keyElement, DataElement dataElement)
     }
     if(mapContains(map,keyElement))
     {
-
+        if(nodechangedata(map->iterator,dataElement,
+                          map->copyDataFunc,map->freedata)!=NODE_SUCCESS)
+        {
+            return MAP_OUT_OF_MEMORY;
+        }
+        return MAP_SUCCESS;
     }
+    Node tmp= createnode(map->copyDataFunc,map->copykeyfunc,
+                         map->fereekey,keyElement,dataElement);
+    if(!tmp)
+    {
+        return MAP_OUT_OF_MEMORY;
+    }
+    if(nodechangenext(map->iterator,tmp,map->copykeyfunc,
+                      map->copyDataFunc,map->fereekey,map->freedata)!=NODE_SUCCESS)
+    {
+        return MAP_OUT_OF_MEMORY;
+    }
+    return MAP_SUCCESS;
 }
 
 /**
@@ -342,7 +373,8 @@ we want to get.
 *  NULL if a NULL pointer was sent or if the map does not contain the requested key.
 * 	The data element associated with the key otherwise.
 */
-DataElement mapGet(Map map, KeyElement keyElement){}
+DataElement mapGet(Map map, KeyElement keyElement)
+{}
 
 /**
 * 	mapRemove: Removes a pair of key and data elements from the map. The elements
