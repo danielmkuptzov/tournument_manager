@@ -4,6 +4,14 @@
 
 #include <stdlib.h>
 
+typedef enum NodeResult_t {
+    NODE_SUCCESS,
+    NODE_OUT_OF_MEMORY,
+    NODE_NULL_ARGUMENT,
+    NODE_ITEM_ALREADY_EXISTS,
+    NODE_ITEM_DOES_NOT_EXIST
+} NodeResult;
+
 #include "map_space_manager.h"
 typedef struct Node_t {
     KeyElement key;
@@ -100,8 +108,59 @@ Node copynode(Node node,copyKeyElements copyKeyElement, copyDataElements copyDat
     return copy;
 }
 
+KeyElement nodegetkey(Node node)
+{
+    if(!node)
+    {
+        return NULL;
+    }
+    return node->key;
+}
+
+DataElement nodegetdata(Node node)
+{
+    if(!node)
+    {
+        return NULL;
+    }
+    return node->data;
+}
+
+Node nodegetnext(Node node)
+{
+    if(!node)
+    {
+        return NULL;
+    }
+    return node->next;
+}
+/**
+*	mapPut: Gives a specified key a specific value.
+*  Iterator's value is undefined after this operation.
+*
+* @param node - The map for which to reassign the data element
+* @param copyDataElement - The copy function
+* @param dataElement - The new data element to associate with the given key.
+*      A copy of the element will be inserted as supplied by the copying function
+*      which is given at initialization and old data memory would be
+*      deleted using the free function given at initialization.
+* @return
+* 	NODE_NULL_ARGUMENT if a NULL was sent as map
+* 	NODE_SUCCESS the paired elements had been inserted successfully
+*/
+NodeResult nodeinsert(Node node, copyDataElements copyDataElement, DataElement dataElement)
+{
+    if(!node||!copyDataElement||!dataElement)
+    {
+        return NODE_NULL_ARGUMENT;
+    }
+
+}
+
 struct map_t{
+    int size;
     Node head;
+    Node iterator;
     copyDataElements copyDataFunc;
     copyKeyElements copykeyfunc;
     freeDataElements freedata;
@@ -131,6 +190,8 @@ Map mapCreate(copyDataElements copyDataElement,
     mapnew->fereekey=freeKeyElement;
     mapnew->freedata=freeDataElement;
     mapnew->head=NULL;
+    mapnew->size=0;
+    mapnew->iterator=NULL;
     return mapnew;
 }
 
@@ -145,40 +206,64 @@ void mapDestroy(Map map)
     free(map);
 }
 
-/**
-* mapCopy: Creates a copy of target map.
-* Iterator values for both maps is undefined after this operation.
-*
-* @param map - Target map.
-* @return
-* 	NULL if a NULL was sent or a memory allocation failed.
-* 	A Map containing the same elements as map otherwise.
-*/
 Map mapCopy(Map map)
-{}
+{
+    if(!map)
+    {
+        return NULL;
+    }
+    Map copy= mapCreate(map->copyDataFunc,map->copykeyfunc,map->freedata,
+                        map->fereekey,map->comparisonfunc);
+    if(!copy)
+    {
+        return NULL;
+    }
+    Node original=map->head;
+    Node ncopy= copynode(original,map->copykeyfunc,map->copyDataFunc,
+                         map->fereekey);
+    copy->head= ncopy;
+    while (!original)
+    {
+        ncopy->next= copynode(original->next,map->copykeyfunc,map->copyDataFunc,
+                              map->fereekey);
+        if(!nodegetnext(ncopy))
+        {
+            mapDestroy(copy);
+            return NULL;
+        }
+        original=original->next;
+        ncopy= nodegetnext(ncopy);
+    }
+    return copy;
+}
 
-/**
-* mapGetSize: Returns the number of elements in a map
-* @param map - The map which size is requested
-* @return
-* 	-1 if a NULL pointer was sent.
-* 	Otherwise the number of elements in the map.
-*/
-int mapGetSize(Map map){}
+int mapGetSize(Map map)
+{
+    if(!map)
+    {
+        return -1;
+    }
+    return map->size;
+}
 
-/**
-* mapContains: Checks if a key element exists in the map. The key element will be
-* considered in the map if one of the key elements in the map it determined equal
-* using the comparison function used to initialize the map.
-*
-* @param map - The map to search in
-* @param element - The element to look for. Will be compared using the
-* 		comparison function.
-* @return
-* 	false - if one or more of the inputs is null, or if the key element was not found.
-* 	true - if the key element was found in the map.
-*/
-bool mapContains(Map map, KeyElement element){}
+bool mapContains(Map map, KeyElement element)
+{
+    if(!map||!element)
+    {
+        return false;
+    }
+    Node iteration=map->head;
+    while(!iteration)
+    {
+        if(map->comparisonfunc(nodegetkey(iteration),element)==0)
+        {
+            map->iterator=iteration;
+            return true;
+        }
+        iteration= nodegetnext(iteration);
+    }
+    return false;
+}
 
 /**
 *	mapPut: Gives a specified key a specific value.
@@ -191,12 +276,21 @@ bool mapContains(Map map, KeyElement element){}
 *      which is given at initialization and old data memory would be
 *      deleted using the free function given at initialization.
 * @return
-* 	MAP_NULL_ARGUMENT if a NULL was sent as map
 * 	MAP_OUT_OF_MEMORY if an allocation failed (Meaning the function for copying
 * 	an element failed)
 * 	MAP_SUCCESS the paired elements had been inserted successfully
 */
-MapResult mapPut(Map map, KeyElement keyElement, DataElement dataElement){}
+MapResult mapPut(Map map, KeyElement keyElement, DataElement dataElement)
+{
+    if(!map||!keyElement||!dataElement)
+    {
+        return MAP_NULL_ARGUMENT;
+    }
+    if(mapContains(map,keyElement))
+    {
+
+    }
+}
 
 /**
 *	mapGet: Returns the data associated with a specific key in the map.
