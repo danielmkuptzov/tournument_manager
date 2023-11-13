@@ -389,12 +389,20 @@ DataElement mapGet(Map map, KeyElement keyElement)
 * 	free function given at initialization. The data element associated with this key
 *  will also be freed using the free function given at initialization.
 * @return
-* 	MAP_NULL_ARGUMENT if a NULL was sent to the function
-*  MAP_ITEM_DOES_NOT_EXIST if an equal key item does not already exists in the map
 * 	MAP_SUCCESS the paired elements had been removed successfully
 */
 MapResult mapRemove(Map map, KeyElement keyElement)
-{}
+{
+    if(!map||!keyElement)
+    {
+        return MAP_NULL_ARGUMENT;
+    }
+    if(!mapContains(map,keyElement))
+    {
+        return MAP_ITEM_DOES_NOT_EXIST;
+    }
+    //think about how to destroy wright
+}
 
 /**
 *	mapGetFirst: Sets the internal iterator (also called current key element) to
