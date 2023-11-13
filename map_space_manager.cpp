@@ -375,22 +375,6 @@ DataElement mapGet(Map map, KeyElement keyElement)
     return nodegetdata(map->iterator);
 }
 
-/**
-* 	mapRemove: Removes a pair of key and data elements from the map. The elements
-*  are found using the comparison function given at initialization. Once found,
-*  the elements are removed and deallocated using the free functions
-*  supplied at initialization.
-*  Iterator's value is undefined after this operation.
-*
-* @param map -
-* 	The map to remove the elements from.
-* @param keyElement
-* 	The key element to find and remove from the map. The element will be freed using the
-* 	free function given at initialization. The data element associated with this key
-*  will also be freed using the free function given at initialization.
-* @return
-* 	MAP_SUCCESS the paired elements had been removed successfully
-*/
 MapResult mapRemove(Map map, KeyElement keyElement)
 {
     if(!map||!keyElement)
@@ -401,35 +385,35 @@ MapResult mapRemove(Map map, KeyElement keyElement)
     {
         return MAP_ITEM_DOES_NOT_EXIST;
     }
-    //think about how to destroy wright
+    Node tail=map->head;
+    while(tail->next!=map->iterator)
+    {
+        tail=tail->next;
+    }
+    tail->next=map->iterator->next;
+    map->iterator->next=NULL;
+    destroynode(map->iterator,map->fereekey,map->freedata);
+    return MAP_SUCCESS;
 }
 
-/**
-*	mapGetFirst: Sets the internal iterator (also called current key element) to
-*	the first key element in the map. There doesn't need to be an internal order
-*  of the keys so the "first" key element is any key element.
-*	Use this to start iterating over the map.
-*	To continue iteration use mapGetNext
-*
-* @param map - The map for which to set the iterator and return the first
-* 		key element.
-* @return
-* 	NULL if a NULL pointer was sent or the map is empty.
-* 	The first key element of the map otherwise
-*/
-KeyElement mapGetFirst(Map map){}
+KeyElement mapGetFirst(Map map)
+{
+    if(!map)
+    {
+        return NULL;
+    }
+    map->iterator=map->head;
+    return nodegetkey(map->iterator);
+}
 
-/**
-*	mapGetNext: Advances the map iterator to the next key element and returns it.
-*	The next key element is any key element not previously returned by the iterator.
-* @param map - The map for which to advance the iterator
-* @return
-* 	NULL if reached the end of the map, or the iterator is at an invalid state
-* 	or a NULL sent as argument
-* 	The next key element on the map in case of success
-*/
-KeyElement mapGetNext(Map map){}
-
+KeyElement mapGetNext(Map map)
+{
+    if(!map)
+    {
+        return NULL;
+    }
+    map->iterator= nodegetnext(map->iterator);
+}
 
 /**
 * mapClear: Removes all key and data elements from target map.
@@ -440,4 +424,5 @@ KeyElement mapGetNext(Map map){}
 * 	MAP_NULL_ARGUMENT - if a NULL pointer was sent.
 * 	MAP_SUCCESS - Otherwise.
 */
-MapResult mapClear(Map map){}
+MapResult mapClear(Map map)
+{}
