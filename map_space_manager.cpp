@@ -359,6 +359,7 @@ MapResult mapPut(Map map, KeyElement keyElement, DataElement dataElement)
     {
         return MAP_OUT_OF_MEMORY;
     }
+    map->size++;
     return MAP_SUCCESS;
 }
 
@@ -415,14 +416,13 @@ KeyElement mapGetNext(Map map)
     map->iterator= nodegetnext(map->iterator);
 }
 
-/**
-* mapClear: Removes all key and data elements from target map.
-* The elements are deallocated using the stored free functions.
-* @param map
-* 	Target map to remove all element from.
-* @return
-* 	MAP_NULL_ARGUMENT - if a NULL pointer was sent.
-* 	MAP_SUCCESS - Otherwise.
-*/
 MapResult mapClear(Map map)
-{}
+{
+    if(!map)
+    {
+        return MAP_NULL_ARGUMENT;
+    }
+    map->iterator=NULL;
+    destroynode(map->head,map->fereekey,map->freedata);
+    return MAP_SUCCESS;
+}
